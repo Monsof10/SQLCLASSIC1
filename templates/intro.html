@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Introduction to SQL Injection Training</title>
+    <style>
+        body {
+            background-color: #333; /* Dark background for the whole page */
+            font-family: Arial, sans-serif;
+            color: #ccc; /* Lighter text for better contrast on dark bg */
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            max-width: 900px;
+            margin: 50px auto;
+            background: #222; /* Dark background for the container */
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); /* Stronger shadow for depth */
+            padding: 30px;
+        }
+        h1 {
+            color: #d9534f;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #5cb85c;
+            margin-bottom: 15px;
+        }
+        p {
+            line-height: 1.6;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #5cb85c;
+            color: #fff;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+        .button:hover {
+            background-color: #4cae4c;
+        }
+        .intro-header {
+            background: url('https://via.placeholder.com/900x300?text=SQL+Injection+Training') no-repeat center;
+            background-size: cover;
+            height: 300px;
+            border-radius: 8px 8px 0 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="intro-header"></div>
+        <h1>Welcome to SQL Injection Training</h1>
+        <h2>Understand the Threat</h2>
+        <p>
+            SQL injection is one of the most dangerous and prevalent vulnerabilities in web applications.
+            By exploiting insecure SQL queries, attackers can bypass authentication, access sensitive data,
+            or even manipulate entire databases.
+        </p>
+        <h2>What You'll Learn</h2>
+        <p>
+            In this training, you’ll be guided through real-world scenarios where you must secure vulnerable code.
+            You will learn how to use parameterized queries, input validation, and other best practices
+            to protect your application from SQL injection attacks.
+        </p>
+        <h2>Get Ready to Secure Your Code</h2>
+        <p>
+            Whether you’re a beginner or an experienced developer, this training is designed to reinforce
+            security practices and help you understand how vulnerabilities can be prevented before they are exploited.
+        </p>
+        <a class="button" href="{{ url_for('attack') }}">Start Training</a>
+    </div>
+</body>
+</html>

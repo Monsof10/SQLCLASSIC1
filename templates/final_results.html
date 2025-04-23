@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Final Results</title>
+    <style>
+        body {
+            background-color: #2b2b2b;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .results-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+        .card {
+            background-color: #1f1f1f;
+            border: 1px solid #444;
+            border-radius: 8px;
+            width: 600px;
+            padding: 20px;
+            text-align: center;
+        }
+        .card h2 {
+            margin-top: 0;
+        }
+        .box-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px; /* Slight gap between the two boxes */
+        }
+        .box {
+            /* Each box takes ~50% of the width minus gap */
+            width: 50%;
+            background-color: #333;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: left;
+
+            /* Ensure words wrap nicely */
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        /* Make the <pre> content also wrap lines properly */
+        .box pre {
+            white-space: pre-wrap;   /* wrap text in <pre> */
+            word-wrap: break-word;   /* ensure long words/code break */
+            margin: 0;               /* remove default extra spacing */
+
+            /* OPTIONAL: limit height if content is huge
+               max-height: 300px;
+               overflow-y: auto;
+            */
+        }
+        .nav-buttons {
+            margin-top: 20px;
+        }
+        .button {
+            background-color: #444;
+            color: #fff;
+            padding: 10px 20px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+        .button:hover {
+            background-color: #666;
+        }
+    </style>
+</head>
+<body>
+
+<div class="results-container">
+    <h1>Final Results</h1>
+
+    <div class="card">
+        <!-- Which scenario are we on? -->
+        <h2>Scenario {{ index + 1 }} of {{ total }}</h2>
+        <h3>{{ result.description|safe }}</h3>
+
+        <div class="box-container">
+            <!-- Your Answer -->
+            <div class="box">
+                <h4>Your Answer</h4>
+                <pre>{{ result.user_answer }}</pre>
+            </div>
+            <!-- Correct Answer -->
+            <div class="box">
+                <h4>Correct Answer</h4>
+                <pre>{{ result.correct_code }}</pre>
+            </div>
+        </div>
+
+        <!-- Indicate if user was correct or not -->
+        <p style="margin-top:20px;">
+            <strong>Result:</strong>
+            {% if result.is_correct %}
+                <span style="color: #00ff00;">Correct</span>
+            {% else %}
+                <span style="color: #ff0000;">Incorrect</span>
+            {% endif %}
+        </p>
+
+        <!-- On the last scenario, show final score -->
+        {% if index == total - 1 %}
+            <p><strong>Your Final Score:</strong> {{ score }} / {{ total }}</p>
+        {% endif %}
+
+        <div class="nav-buttons">
+            <!-- BACK button (hidden if we’re on the first scenario) -->
+            {% if index > 0 %}
+                <a class="button" href="{{ url_for('final', index=index-1) }}">Back</a>
+            {% endif %}
+
+            <!-- NEXT button or "Restart" if this is the last scenario -->
+            {% if index < total - 1 %}
+                <a class="button" href="{{ url_for('final', index=index+1) }}">Next</a>
+            {% else %}
+                <!-- Last scenario done. Offer a restart or go to home. -->
+                <a class="button" href="{{ url_for('index') }}">Restart</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

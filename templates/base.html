@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SQL Injection Training</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@4.19.0/css/xterm.css" />
+    <style>
+        body {
+            margin: 0; padding: 0;
+            background-color: #2b2b2b;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: flex; flex-direction: row;
+            height: 100vh; width: 100%;
+        }
+        .terminal-container {
+            flex: 1; background-color: #1f1f1f;
+            border-right: 2px solid #444;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+        }
+        .content {
+            flex: 2; padding: 20px; overflow-y: auto;
+        }
+        .button {
+            background-color: #444; color: #fff;
+            padding: 10px 20px; border: none; cursor: pointer;
+            margin-top: 15px; text-decoration: none;
+        }
+        .button:hover {
+            background-color: #666;
+        }
+        pre {
+            background-color: #333; padding: 10px; overflow-x: auto;
+        }
+        .message {
+            margin-top: 10px; padding: 10px;
+            background-color: #cc0000; color: #fff;
+        }
+        .scenario-container {
+            display: flex; flex-direction: row;
+            height: 100%; width: 100%;
+        }
+        .scenario-left {
+            flex: 1; padding: 20px;
+        }
+        .scenario-right {
+            flex: 1; padding: 20px;
+            display: flex; flex-direction: column;
+        }
+        .terminal-box {
+            flex: 1; background-color: #1f1f1f;
+            margin-bottom: 10px;
+        }
+        .hints {
+            background-color: #444; padding: 10px; margin-top: 10px;
+        }
+        .hint-block {
+            white-space: pre-wrap; margin-bottom: 1em;
+        }
+        .scenario-label {
+            display: inline-block;
+            background-color: #2e86de; /* a blue highlight */
+            color: #fff;
+            padding: 3px 6px;
+            border-radius: 4px;
+            margin-right: 5px;
+        }
+        /* Danger Page Bar Styling */
+        .bar-container {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .bar-cube {
+            width: 40px; height: 40px;
+            margin: 2px;
+            background-color: #444; /* default gray background */
+        }
+        /* We can highlight the cubes in colors depending on the index or count. */
+        .bar-cube.filled-green { background-color: green; }
+        .bar-cube.filled-yellow { background-color: yellow; }
+        .bar-cube.filled-red { background-color: red; }
+        .centered {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    {% if page == "attack" %}
+        <!-- No left side terminal here -->
+        <div style="display:none;"></div>
+
+    {% elif page == "feedback" %}
+        <!-- Feedback left side -->
+        <div class="terminal-container">
+            <h3 style="padding:20px;">Feedback</h3>
+        </div>
+
+    {% elif page == "danger" %}
+        <!-- Danger left side -->
+        <div class="terminal-container">
+            <h3 style="padding:20px;">Warning Page</h3>
+        </div>
+
+    {% elif page == "index" %}
+        <!-- Index left side -->
+        <div class="terminal-container">
+            <h3 style="padding:20px;">SQL Injection Training</h3>
+        </div>
+    {% endif %}
+
+    <div class="content">
+
+        {% if page == "index" %}
+            <!-- Index Page -->
+            <h1>Welcome to the SQL Injection Training Platform</h1>
+            <p>You will be presented with multiple SQL injection scenarios. Correct each vulnerable snippet to prevent the attack!</p>
+            <a class="button" href="{{ url_for('attack') }}">Start Training</a>
+
+        {% elif page == "attack" %}
+            <!-- Attack (Scenario) Page -->
+            <div class="scenario-container">
+                <div class="scenario-left">
+                    <h2>Scenario {{ scenario_index }} of {{ total }}</h2>
+                    <p>
+                        <span class="scenario-label">Scenario details:</span>
+                        {{ scenario.description|safe }}
+                    </p>
+                    <p><strong>SQL code to be corrected:</strong></p>
+                    <pre>{{ scenario.vulnerable_code }}</pre>
+
+                    <button class="button" id="hintButton">Hints</button>
+                    <div class="hints" id="hints" style="display:none;">
+                        {% for hint in scenario.hints %}
+                            <div class="hint-block">{{ hint|safe }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="scenario-right">
+                    <div class="terminal-box" id="terminal"></div>
+                    <form method="POST" id="answer_form">
+                        <input type="hidden" name="user_answer" id="user_answer" />
+                    </form>
+                    {% if message %}
+                        <div class="message">{{ message }}</div>
+                    {% endif %}
+                    <button class="button" onclick="submitAnswer()">Submit</button>
+                </div>
+            </div>
+
+        {% elif page == "danger" %}
+            <!-- Danger/Warning Page (before Feedback) -->
+            <div class="centered">
+                <h2>DATABASE COMPROMISE WARNING</h2>
+                <p>{{ result.error_message }}</p>
+                <p>
+                    You have failed {{ failed_scenarios }} scenario(s). <br>
+                    The more boxes filled, the closer your database is to a severe compromise.
+                </p>
+                <!-- Simple 6-cube bar -->
+                <div class="bar-container">
+                    {% set filled_count = failed_scenarios %}
+                    {% for i in range(6) %}
+                        {% if i < filled_count %}
+                            {# Decide color by how many total fails #}
+                            {% if filled_count <= 2 %}
+                                <div class="bar-cube filled-green"></div>
+                            {% elif filled_count <= 4 %}
+                                <div class="bar-cube filled-yellow"></div>
+                            {% else %}
+                                <div class="bar-cube filled-red"></div>
+                            {% endif %}
+                        {% else %}
+                            <div class="bar-cube"></div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <button class="button"
+                    onclick="location.href='{{ url_for('feedback', scenario_id=result.id) }}'">
+                    Proceed to Feedback
+                </button>
+            </div>
+
+        {% elif page == "feedback" %}
+            <!-- Feedback Page -->
+            <h2>Scenario {{ result.id }}: {{ result.description|safe }}</h2>
+            {% if result.is_correct %}
+                <h3 style="color: #00ff00;">Correct!</h3>
+                <p>Your final answer was safe from SQL injection.</p>
+            {% else %}
+                <h3 style="color: #ff0000;">Incorrect.</h3>
+                <p>Your final answer was still vulnerable or did not match the secure snippet.</p>
+                {% if result.error_message %}
+                    <div class="message">{{ result.error_message }}</div>
+                {% endif %}
+            {% endif %}
+            <p><strong>Your Final Answer:</strong></p>
+            <pre>{{ result.user_answer }}</pre>
+            <p><strong>Correct (Secure) Code:</strong></p>
+            <pre>{{ result.correct_code }}</pre>
+            <a class="button" href="{{ url_for('next_scenario', scenario_id=result.id) }}">Next</a>
+        {% endif %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xterm@4.19.0/lib/xterm.js"></script>
+<script>
+{% if page == "attack" %}
+    /* Terminal setup for scenario code editing */
+    var term = new Terminal({
+        cursorBlink: true,
+        rows: 20,
+        cols: 100,
+        lineHeight: 1.2
+    });
+    term.open(document.getElementById('terminal'));
+
+    // 1) Write the starter code to the terminal, but do NOT store it in userCode.
+    {% if scenario.starter_code %}
+    var partialCode = `{{ scenario.starter_code | safe }}`.replace(/\r/g, '');
+    var lines = partialCode.split("\n");
+    lines.forEach(function(line) {
+        term.writeln(line);
+    });
+    {% else %}
+    term.write("Type your corrected code here. Press ENTER as needed.\r\n");
+    {% endif %}
+
+    // 2) userCode will contain ONLY what the user types AFTER the starter code is displayed
+    var userCode = "";
+
+    // Listen for keystrokes
+    term.onKey(function(e) {
+        const char = e.key;
+        if (e.domEvent.key === 'Enter') {
+            userCode += "\n";
+            term.write("\r\n");
+        } else if (e.domEvent.key === 'Backspace') {
+            if (userCode.length > 0) {
+                userCode = userCode.slice(0, -1);
+                term.write('\b \b');
+            }
+        } else if (e.domEvent.key.length === 1) {
+            userCode += char;
+            term.write(char);
+        }
+    });
+
+    function submitAnswer() {
+        // Send only the user-typed content
+        document.getElementById('user_answer').value = userCode;
+        document.getElementById('answer_form').submit();
+    }
+
+    var hintBtn = document.getElementById('hintButton');
+    var hintDiv = document.getElementById('hints');
+    hintBtn.addEventListener('click', function() {
+        if (hintDiv.style.display === 'none') {
+            hintDiv.style.display = 'block';
+        } else {
+            hintDiv.style.display = 'none';
+        }
+    });
+{% endif %}
+</script>
+
+</body>
+</html>
