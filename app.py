@@ -222,7 +222,12 @@ ERROR_SIGN_MESSAGES = {
 def normalize_code(code):
     """ Remove whitespace and convert to lowercase for a simple 'string match' approach. """
     return re.sub(r'\s+', '', code.lower())
-
+def add_headers(response):
+    response.headers["X-Frame-Options"] = "ALLOWALL"
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    return response 
 @app.route('/')
 def index():
     # Reset session data for a new training session
