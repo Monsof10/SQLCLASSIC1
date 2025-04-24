@@ -308,7 +308,8 @@ def attack():
         scenario=scenario,
         scenario_index=current_index + 1,
         total=len(SCENARIOS),
-        message=message
+        message=message,
+        results=session.get('results', [])
     )
 
 @app.route('/danger/<int:scenario_id>')
